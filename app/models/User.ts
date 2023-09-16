@@ -1,5 +1,4 @@
 const SALT_WORK_FACTOR = 10;
-
 import bcrypt from "bcrypt";
 import { validateEmail } from "../lib/utils";
 import { Schema, model, models } from "mongoose";
@@ -14,7 +13,7 @@ const userSchema = new Schema({
     validate: [validateEmail, "Invalid email address"],
     required: [true, "email is required"],
   },
-  password: { type: String, required: [true, "password is required"] },
+  password: { type: String, required: [true, "password is required"],select:false },
 });
 
 userSchema.pre("save", function (next) {
