@@ -1,7 +1,7 @@
 import Joi from "joi";
 
-export const schema = Joi.object({
-    password: Joi.string().required(),
+export const createSchema = Joi.object({
+    password: Joi.alternatives(Joi.string(), Joi.number()).required(),
     email: Joi.string()
         .required()
         .email(),
@@ -10,7 +10,7 @@ export const schema = Joi.object({
 })
 
 export const updateSchema = Joi.object({
-    password: Joi.string().optional(),
+    password: Joi.alternatives(Joi.string(), Joi.number()).optional(),
     email: Joi.string()
         .optional()
         .email(),

@@ -1,21 +1,16 @@
+import bcrypt from "bcrypt";
 import User from "../../models/User";
 import connect from "../../db/connect";
-import {schema} from "../../models/UserSchema";
 import { NextResponse } from "next/server";
+import {createSchema} from "../../models/UserSchema";
 
 export async function POST(request: Request) {
   try {
     await connect();
 
-    const formData = await request.formData();
+    const { name, email,password } = await request.json();
 
-    const name = formData.get("name");
-
-    const email = formData.get("email");
-
-    const password = formData.get("password");
-
-    let validation = schema.validate({ name, email, password });
+    let validation = createSchema.validate({ name, email, password });
 
     if (validation.error) {
       return NextResponse.json({error:validation.error.details}, { status: 422 });
@@ -27,7 +22,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "user already exist" }, { status: 422 });
     }
 
-    const user = await new User({ name, email, password }).save();
+    const SALT_WORK_FACTOR = 10;
+
+    const salt = await bcrypt.genSalt(SALT_WORK_FACTOR)
+    
+    const hash = await bcrypt.hash(password, salt)
+
+    const user = await new User({ name, email, password:hash }).save();
 
     return NextResponse.json({
       _id: user._id,
