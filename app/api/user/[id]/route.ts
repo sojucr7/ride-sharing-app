@@ -18,8 +18,17 @@ export async function GET(
     if (!user) {
       return NextResponse.json({ error: "user not found" }, { status: 404 });
     }
-
-    return NextResponse.json({ success: true, user }, { status: 200 });
+    return NextResponse.json(
+      {
+        success: true,
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+        },
+      },
+      { status: 200 }
+    );
   } catch (e) {
     return NextResponse.json(
       { error: "something went wrong" },
@@ -51,14 +60,14 @@ export async function PUT(
     }
     const SALT_WORK_FACTOR = 10;
 
-    if(nonEmptyFields.password){
-      const salt = await bcrypt.genSalt(SALT_WORK_FACTOR)
-    
-      const hash = await bcrypt.hash(nonEmptyFields.password, salt)
-  
-      nonEmptyFields.password = hash
-    }   
-    
+    if (nonEmptyFields.password) {
+      const salt = await bcrypt.genSalt(SALT_WORK_FACTOR);
+
+      const hash = await bcrypt.hash(nonEmptyFields.password, salt);
+
+      nonEmptyFields.password = hash;
+    }
+
     await User.findByIdAndUpdate(id, nonEmptyFields);
 
     return NextResponse.json({ success: true }, { status: 200 });
