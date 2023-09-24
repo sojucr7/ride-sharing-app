@@ -19,17 +19,14 @@ export async function POST(request: Request) {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (isMatch) {
-      return NextResponse.json(
-        {
-          success: isMatch,
-          token: jwt.sign({ user_id: user._id, email }, "siuuu", {
-            expiresIn: "2h",
-          }),
-        },
-        { status: 200 }
-      );
+
+      // @ts-ignore
+      return Response.json({
+        success: isMatch,
+      },{ status: 200,headers: { 'Set-Cookie': `token=${jwt.sign({ user_id: user._id, email }, process.env.JWT_SECRET, {
+          expiresIn: "24h",
+        })}` }})
     }
-    return NextResponse.json({ success: false }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error }, { status: 500 });
   }
