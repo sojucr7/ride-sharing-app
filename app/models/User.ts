@@ -1,4 +1,3 @@
-const SALT_WORK_FACTOR = 10;
 import bcrypt from "bcrypt";
 import { validateEmail } from "../lib/utils";
 import { Schema, model, models } from "mongoose";
