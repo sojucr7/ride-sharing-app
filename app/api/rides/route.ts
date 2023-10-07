@@ -1,9 +1,28 @@
-import connect from "../../db/connect";
+import Ride from "../../models/Ride"
+import connect from "../../db/connect"
+import { NextResponse } from "next/server"
 
 export async function POST(request: Request) {
   try {
     await connect();
 
+    const {
+      sourceCoordinates,
+      pathCoordinates,
+      destinationCoordinates,
+    }: {
+      sourceCoordinates: [number, number];
+      destinationCoordinates: [number, number];
+      pathCoordinates: [number, number][];
+    } = await request.json();
+
+    const ride = await new Ride({
+      source: { type: "Point", coordinates: sourceCoordinates },
+      destination: { type: "Point", coordinates: destinationCoordinates },
+      paths: { type: "LineString", coordinates: pathCoordinates },
+    }).save();
+
+    return NextResponse.json({});
     //STEPS
 
     // source -> [lat,lng] -> point
@@ -21,12 +40,8 @@ export async function POST(request: Request) {
     //    ] },
     //     distanceField: 'distance',
     //     maxDistance: 50,
-        
+
     //     spherical: true
     //   }
-
-  } catch (error: any) {
-  }
+  } catch (error: any) {}
 }
-
-
