@@ -10,10 +10,14 @@ export async function POST(request: Request) {
 
     const { name, email,password } = await request.json();
 
-    let validation = createSchema.validate({ name, email, password });
+    let validation = createSchema.validate({ name, email, password },{abortEarly:false});
 
     if (validation.error) {
-      return NextResponse.json({error:validation.error.details}, { status: 422 });
+      return NextResponse.json({errors: validation.error.details.map((detail)=>{
+        const obj:{[k: string]: string} = {};
+        obj[detail.path[0]] = detail.message;
+        return obj
+      }) }, { status: 422 });
     }
 
     const userExist = await User.findOne({ email });
@@ -34,7 +38,7 @@ export async function POST(request: Request) {
       _id: user._id,
       name: user.name,
       email: user.email,
-    });
+    }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error}, { status: 500 });
   }
