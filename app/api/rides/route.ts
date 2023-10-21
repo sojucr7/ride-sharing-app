@@ -1,17 +1,18 @@
 import { Schema} from "mongoose";
-import Ride from "../../models/Ride";
 import { cookies } from 'next/headers'
+import Ride from "../../models/Ride";
 import connect from "../../db/connect";
 import { NextResponse } from "next/server";
 import { createSchema } from "../../models/RideSchema";
+import {parseJwt} from '../../lib/utils'
 
 export async function POST(request: Request) {
   try {
-    await connect();
 
     const cookieStore = cookies()
     const token = cookieStore.get('token')
-    
+    const {user_id,email,name}=parseJwt(token!.value)
+    await connect();
     const {
       sourceCoordinates,
       pathCoordinates,
@@ -38,12 +39,14 @@ export async function POST(request: Request) {
         { status: 422 }
       );
     }
+    console.log()
+   
 
     const ride = await new Ride({
       source: { type: "Point", coordinates: sourceCoordinates },
       destination: { type: "Point", coordinates: destinationCoordinates },
       paths: { type: "LineString", coordinates: pathCoordinates },
-      user:{_id:'650f2e0d79b05c21595e930a',name:'soju',email:'sojucr7@gmail.com'}
+      user:{_id:user_id,name,email}
     }).save();
 
     return NextResponse.json({ success: true  }, { status: 201 });
